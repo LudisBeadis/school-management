@@ -1,0 +1,135 @@
+{% extends 'teacher/base.html' %}
+{% block content %}
+<div class="container-xxl flex-grow-1 container-p-y">
+    <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Add /</span> Grade {{grade.name}} students grade</h4>
+
+    <!-- Basic Bootstrap Table -->
+    <div class="card">
+      <h5 class="card-header">Results</h5>
+      <div class="table-responsive text-nowrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Full Name</th>
+              {% for t in test %}
+              <th>{{t.name}} ({{t.capacity}} Marks)</th>
+              {% endfor %}
+              <th>Total ({{totall}} Marks)</th>
+              <th>Average</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody class="table-border-bottom-0">
+            {% for s in student %}
+            <tr>
+              <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{s.profile.user.first_name}} {{s.profile.user.last_name}}</strong></td>
+              {% if result %}
+              {% for t in test %}
+                {% for r in result %}
+                    {% if r.student.username == s.username and r.name.name == t.name %}
+                    <form method="POST" action="{% url 't_save_result' %}">
+                      {% csrf_token %}
+                     <td><input type="number" name="input" min="0" max="{{t.capacity}}" style="border:1px solid {{web.theme_color}};border-radius:10px 0 0 10px ;width:70px;padding:10px;" value="{{r.status}}"/><label for="updateit{{r.id}}" style="border-radius: 0 10px 10px 0 ;" class="btn btn-primary menu-icon tf-icons bx bx-upload"></label></td>
+                      <input type="text" hidden name="result_id" value="{{r.id}}">
+                      <input type="text" hidden name="student_id" value="{{s.id}}">
+                      <input type="text" hidden name="test_id" value="{{t.id}}">
+                      <input type="submit" name="update" hidden id="updateit{{r.id}}">
+                    </form>
+                    {% endif %}
+                {% endfor %}
+                
+              {% endfor %}
+              <td>{{total}}</td>
+              {% if s.average %}
+              <td>{{s.average}}%</td>
+              {% else %}
+              <td style="display:flex;justify-content:center;">-</td>
+              {% endif %}
+              {% if s.average > 50 %}
+              <td><span class="badge bg-label-success me-1">passed</span></td>
+              {% else %}
+              <td><span class="badge bg-label-warning me-1">failed</span></td>
+              {% endif %}
+              <input type="text" name="id" value="{{s.id}}" hidden>
+              {% else %}
+              <td>Nothing to show</td>
+              {% endif %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+</div>
+<div class="container-xxl flex-grow-1 container-p-y">
+  <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Add /</span> add by test</h4>
+  <div style="display: flex;max-width: 100%;overflow: hidden;flex-wrap: wrap;">
+  {% for t in test %}
+  <div class="col-md-6">
+    <div class="card mb-4">
+      <hr class="m-0" />
+      <div class="card-body">
+        <small class=" fw-bold">{{t.name}} Results</small>
+        <form method="POST">
+          {% csrf_token %}
+        <div class="mt-2 mb-3">
+          <label for="largeSelect" class="form-label">Select Students</label>
+          <select id="largeSelect" class="form-select form-select-lg" name="student">
+            {% for s in student %}
+            <option value="{{s.id}}">{{s.profile.user.first_name}} {{s.profile.user.last_name}}</option>
+            {% endfor %}
+          </select>
+          <div>
+            <label for="defaultFormControlInput" class="form-label">Value</label>
+            <input
+              type="number"
+              class="form-control"
+              id="defaultFormControlInput"
+              value="0"
+              min="0"
+              name="amount"
+              max="{{t.capacity}}"
+              aria-describedby="defaultFormControlHelp"
+            />
+          </div><br><br>
+          <input type="text" hidden value="{{t.id}}" name="test" id="">
+          <input type="text" hidden value="{{teacher.my_room.id}}" name="subject" id="">
+          <button type="submit" name="test_add"  class="btn btn-outline-primary">add</button>
+        </div>
+      </form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+</div>
+<div class="container-xxl flex-grow-1 container-p-y">
+  <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Add /</span>All class list here you can add there result</h4>
+
+  <!-- Basic Bootstrap Table -->
+  <div class="card">
+    <h5 class="card-header">Results</h5>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Full Name</th>
+            <th>Link</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+          {% for t in teacher.my_room.all %}
+          <tr>
+              <td>Grade {{t.name}}</td>
+              <td>
+                  <a href="{% url 't_one_result' t.id %}" class="btn btn-outline-dark">First Term</a>
+                  <a href="{% url 't_two_result' t.id %}" class="btn btn-outline-dark">Second Term</a>
+              </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
